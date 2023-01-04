@@ -10,7 +10,7 @@ dotenv.config();
 app.use(cors());
 app.use(bodyParser.json());
 
-app.post('/proxy', (req, res) => {
+app.post('/', (req, res) => {
   if (!req.headers.origin && !req.headers['x-requested-with']) {
     res.status(400).send({error: 'Missing required headers (origin or x-requested-with)'});
     return;
@@ -32,6 +32,6 @@ app.post('/proxy', (req, res) => {
 
 const port = process.env.PORT || 3000;
 
-app.listen(3000, () => {
+app.listen(port, () => {
   console.log('API listening on port 3000');
 });
