@@ -12,25 +12,42 @@ app.use(bodyParser.json());
 
 app.post('/', (req, res) => {
   if (!req.headers.origin && !req.headers['x-requested-with']) {
-    res.status(400).send({error: 'Missing required headers (origin or x-requested-with)'});
+    res.status(400).send({ error: 'Missing required headers (origin or x-requested-with)' });
     return;
   }
+  if (!req.body.url) {
+    res.send({
+      error: "No URL provided",
+    })
+    return;
+  }
+
+  if(!req.body.headers) req.body.headers = {};
+  req.body.headers['x-requested-with'] = req.headers['x-requested-with'];
+  req.body.headers.origin = req.headers.origin;
+  
   const options = {
     url: req.body.url,
     method: req.body.method,
-    headers: req.body.headers,
-    body: req.body.body
+    body: JSON.stringify(req.body.body),
+    headers: JSON.stringify(req.body.headers)
   }
+  
   request(options, (error, response, body) => {
     if (error) {
-      res.send({error});
+      res.send({ error });
     } else {
-      res.send({response, body});
+      try {
+        const json = JSON.parse(body);
+        res.send(json);
+      } catch (err) {
+        res.send(body);
+      }
     }
   });
 });
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 
 app.listen(port, () => {
   console.log('API listening on port 3000');
